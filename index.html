@@ -1,34 +1,180 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prince Nsika AI</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prince Nsika AI Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { overflow: hidden; background: #0a0a1a; color: white; }
+        #intro { position: fixed; inset: 0; background: #0a0a1a; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .book { width: 320px; height: 220px; background: #fff; position: relative; border-radius: 6px; box-shadow: 0 0 50px rgba(0, 150, 255, 0.4); }
+        .robot { width: 45px; height: 65px; background: linear-gradient(180deg, #e0e0e0, #b0b0b0); position: absolute; top: 50%; left: 15%; transform: translateY(-50%); border-radius: 10px; animation: dessiner 3.5s ease-in-out forwards; }
+        .robot::before { content: ''; position: absolute; top: -25px; left: 5px; width: 35px; height: 35px; background: #d8d8; border-radius: 50%; }
+        .robot::after { content: ''; position: absolute; top: -15px; left: 15px; width: 8px; height: 8px; background: #00c8ff; border-radius: 50%; box-shadow: 0 0 10px #00c8ff; }
+        .light { position: absolute; width: 120px; height: 120px; background: radial-gradient(circle, rgba(0,200,255,0.7) 0%, transparent 70%); top: 50%; left: 15%; transform: translate(-50%, -50%); animation: lumiere 3.5s ease-in-out forwards; }
+        .trail { position: absolute; height: 3px; background: #00c8ff; top: 52%; left: 15%; width: 0; box-shadow: 0 0 10px #00c8ff; animation: tracer 3.5s ease-in-out forwards; }
+        @keyframes dessiner { 0% { left: 15%; opacity: 1; } 80% { left: 75%; opacity: 1; } 100% { left: 75%; opacity: 0; } }
+        @keyframes lumiere { 0% { left: 15%; opacity: 0.9; } 80% { left: 75%; opacity: 0.9; } 100% { left: 75%; opacity: 0; } }
+        @keyframes tracer { 0% { width: 0; left: 15%; opacity: 1; } 80% { width: 60%; left: 15%; opacity: 1; } 100% { width: 60%; opacity: 0; } }
+        #login { position: fixed; inset: 0; background: #0a0a1a; display: none; align-items: center; justify-content: center; flex-direction: column; z-index: 900; }
+        #login h1 { margin-bottom: 40px; font-size: 32px; text-align: center; }
+        .google-btn { background: white; color: #444; padding: 14px 28px; border-radius: 6px; border: none; font-size: 16px; font-weight: 500; display: flex; align-items: center; gap: 12px; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+        #app { display: none; height: 100vh; background: linear-gradient(180deg, #0d47a1 0%, #1565c0 50%, #1976d2 100%); position: relative; }
+        .header { padding: 50px 20px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 12px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .header p { opacity: 0.95; font-size: 15px; }
+        .content { padding: 15px; height: calc(100vh - 210px); overflow-y: auto; }
+        .page { display: none; animation: fadeIn 0.3s; }
+        .page.active { display: block; }
+        .box { background: rgba(255,255,0.1); backdrop-filter: blur(10px); border-radius: 16px; padding: 20px; margin-top: 15px; }
+        .btn { padding: 12px 20px; border-radius: 25px; border: none; background: white; color: #1976d2; font-weight: 600; cursor: pointer; margin-top: 10px; width: 100%; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-danger { background: #ff4444; color: white; }
+        .btn-success { background: #00c853; color: white; }
+        .btn-gold { background: linear-gradient(90deg, #FFD700, #FFA500); color: #000; font-weight: 700; }
+        .input { width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.2); color: white; outline: none; margin: 8px 0; }
+        .input::placeholder { color: rgba(255,255,255,0.6); }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.15); }
+        .nav-btn { background: none; border: none; color: white; display: flex; flex-direction: column; align-items: center; font-size: 11px; gap: 5px; cursor: pointer; opacity: 0.6; transition: 0.2s; padding: 5px 8px; border-radius: 10px; }
+        .nav-btn.active { opacity: 1; background: rgba(255,255,255,0.1); }
+        .nav-btn svg { width: 24px; height: 24px; fill: white; }
+        #plus-menu { position: fixed; bottom: 80px; right: 10px; left: 10px; background: #1a1a2e; border-radius: 16px; padding: 8px; display: none; flex-direction: column; gap: 4px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); max-height: 60vh; overflow-y: auto; }
+        #plus-menu button { background: #252538; border: none; color: white; padding: 14px 16px; border-radius: 10px; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; }
+        #plus-menu button:hover { background: #323248; }
+        #modal-code { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-content { background: #1a1a2e; padding: 30px; border-radius: 16px; text-align: center; width: 80%; max-width: 300px; }
+        .pay-balance { font-size: 36px; font-weight: 700; margin: 20px 0; text-align: center; }
+        .pay-card { background: rgba(255,255,255,0.15); padding: 15px; border-radius: 12px; margin: 10px 0; }
+        .transaction { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab { flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; cursor: pointer; }
+        .tab.active { background: white; color: #1976d2; font-weight: 600; }
+        .code-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin: 12px 0; border-left: 4px solid #00c8ff; }
+        .code-title { font-weight: 700; color: #00c8ff; margin-bottom: 8px; font-size: 15px; }
+        .code-desc { font-size: 13px; opacity: 0.9; line-height: 1.5; margin-bottom: 10px; }
+        .code-block { background: #0a0a1a; padding: 12px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; overflow-x: auto; white-space: pre; }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #00c853; padding: 12px 20px; border-radius: 8px; z-index: 3000; display: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
 </head>
 <body>
-  <div class="app">
-    <h1>Prince Nsika AI</h1>
-    <div class="chat">Salut, je suis Lia 👋 Pose-moi une question</div>
-    <button class="plus" onclick="toggleMenu()">+</button>
-    <div id="menu" class="menu">
-      <div class="menu-item" onclick="ouvrirJeu()">
-        <span>🎮</span>
-        <p>Créer un jeu vidéo avec Lia</p>
-      </div>
-      <div class="menu-item">
-        <span>⚙️</span>
-        <p>Paramètres</p>
-      </div>
+    <div id="toast" class="toast"></div>
+    <div id="intro"><div class="book"><div class="light"></div><div class="trail"></div><div class="robot"></div></div>
+    <div id="login">
+        <h1>Prince Nsika AI Pro</h1>
+        <button class="google-btn" onclick="connecterGoogle()">
+            <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.4 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.4 1.1 7.4 2.8l5.7-5.7C33.1 6.7 28.8 4.5 24 4.5 13.5 4.5 5 13 5 23.5S13.5 42.5 24 42.5c10.5 0 19.5-8.5 19.5-19 0-1.3-.1-2.5-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16.1 18.9 13 24 13c2.8 0 5.4 1.1 7.4 2.8l5.7-5.7C33.1 6.7 28.8 4.5 24 4.5 16.1 4.5 9.3 9.1 6.3 14.7z"/><path fill="#4CAF50" d="M24 42.5c5.2 0 10-2 13.6-5.2l-6.3-5.3c-2 1.5-4.5 2.5-7.3 2.5-5.3 0-9.7-3.6-11.3-8.5l-6.6 5.1C9.2 37.9 16.1 42.5 24 42.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1 2.8-3.1 5.1-5.7 6.5l6.3 5.3C39.9 36.2 42.5 30.8 43.6 25c.3-1.5.4-3 .4-4.5 0-1.3-.1-2.5-.4-3.5z"/></svg>
+            Se connecter avec Google
+        </button>
     </div>
-    <button class="pro" onclick="payer()">Passer Pro - 10$</button>
-  </div>
-  <div id="popup-jeu" class="popup">
-    <h2>Crée ton jeu vidéo avec Lia</h2>
-    <button onclick="modeIA()">✨ Je décris, Lia crée tout</button>
-    <button onclick="modeCode()">💻 Je code moi-même</button>
-    <div id="zone-ia" style="display:none">
-      <textarea id="desc" placeholder="Ex: jeu de course dans l'espace, style pixel art..."></textarea>
-      <button onclick="creerJeuIA()">Lia, crée mon jeu</button>
-    </div>
-    <div id="zone
+    <div id="app">
+        <div class="header"><h1>Bienvenue sur Prince Nsika AI Pro</h1><p>Un site créé pour répondre à tous vos besoins</p></div>
+        <div class="content">
+            <div id="page-chat" class="page active"><div class="box"><h2>💬 Chat avec Lia</h2><p style="margin: 15px 0; opacity: 0.8;">Salut ! Je suis Lia. Pose-moi une question 👇</p><input type="text" class="input" placeholder="Écris ton message..." id="chatInput"><button class="btn" onclick="envoyerMessage()">Envoyer</button><div id="chatMessages" style="margin-top: 20px;"></div></div></div>
+            <div id="page-message" class="page"><div class="box"><h2>📧 Messages</h2><div id="messageList"><p style="margin-top: 15px; opacity: 0.8;">Tes conversations apparaîtront ici.</p></div></div></div>
+            <div id="page-nav" class="page"><div class="box"><h2>🧭 Navigation</h2><p style="margin-top: 15px; opacity: 0.8;">Explore toutes les fonctions de Prince Nsika AI</p><button class="btn" onclick="ouvrirPage('princepay')">Aller à Prince Pay</button><button class="btn" onclick="ouvrirPage('dev')">Créer une App</button></div></div>
+            <div id="page-bd" class="page"><div class="box"><h2>📚 Création de BD</h2><textarea class="input" placeholder="Décris ta BD..." rows="3" id="bdPrompt"></textarea><button class="btn" onclick="creerBD()">Commencer une BD</button><div id="bdResult"></div></div></div>
+            <div id="page-video" class="page"><div class="box"><h2>🎬 Création de Vidéos</h2><p style="opacity: 0.8;">Lia transforme ton texte ou ta BD en vidéo</p><textarea class="input" placeholder="Décris ta vidéo..." rows="4" id="videoPrompt"></textarea><input type="file" class="input" accept="image/*" id="videoFile"><button class="btn" onclick="genererVideo()">Générer la Vidéo</button><div id="videoResult"></div></div></div>
+            <div id="page-abo" class="page"><div class="box"><h2>💎 S'abonner à Prince Nsika AI Pro</h2><p style="opacity: 0.8;">Accès complet pour 2€ par semaine</p><button class="btn" onclick="souscrire()" id="btnAbo">S'abonner - 2€/semaine</button><p id="aboStatus" style="margin-top:10px; opacity:0.8;"></p></div></div>
+            <div id="page-publier" class="page"><div class="box"><h2>📤 Publier / Télécharger BD</h2><input type="file" class="input" accept="image/*,.pdf" id="bdFile"><button class="btn" onclick="publierBD()">Publier ma BD</button><button class="btn" onclick="showToast('Téléchargement...')">Télécharger mes BD</button><div id="mesBD"></div></div>
+            <div id="page-arts" class="page"><div class="box"><h2>🎨 Multiservices - Arts</h2><p style="opacity: 0.8;">Lia t'apprend tous les arts et t'encadre</p><button class="btn" onclick="coursArt('Dessin')">Cours de Dessin</button><button class="btn" onclick="coursArt('Peinture')">Cours de Peinture</button><button class="btn" onclick="coursArt('Musique')">Cours de Musique</button><div id="artResult"></div></div></div>
+            <div id="page-dev" class="page"><div class="box"><h2>💻 Création Site Web, App, IA & Jeux</h2><textarea class="input" placeholder="Décris ce que tu veux créer..." rows="4" id="devPrompt"></textarea><button class="btn" onclick="genererCode()">Lia crée pour moi</button><button class="btn" onclick="showToast('Éditeur de code ouvert')">Coder moi-même</button><div id="devResult"></div></div></div>
+            <div id="page-learn" class="page"><div class="box"><h2>📚 Apprentissage Maternelle → Suprême</h2><p style="opacity: 0.8;">Toutes les matières + toutes les langues</p><select class="input" id="niveau"><option>Maternelle</option><option>Primaire</option><option>Collège</option><option>Lycée</option><option>Supérieur</option><option>Suprême</option></select><input class="input" placeholder="Quelle matière ?" id="matiere"><button class="btn" onclick="genererCours()">Commencer le cours</button><button class="btn" onclick="genererDevoir()">Faire un devoir</button><button class="btn" onclick="genererExamen()">Passer un examen</button><div id="learnResult"></div></div></div>
+            <div id="page-scan" class="page"><div class="box"><h2>📸 Scannage BD</h2><p style="opacity: 0.8;">Lia ajoute ombre + ancrage à ta BD</p><input type="file" class="input" accept="image/*" id="scanFile"><button class="btn" onclick="scannerBD()">Scanner et Améliorer</button><div id="scanResult"></div></div></div>
+            <div id="page-princepay" class="page">
+                <div class="box">
+                    <div class="tabs">
+                        <button class="tab active" onclick="switchTab('compte')">Mon Compte</button>
+                        <button class="tab" onclick="switchTab('partenaire')">Devenir Partenaire</button>
+                    </div>
+                    <div id="tab-compte">
+                        <h2>💰 Prince Pay</h2>
+                        <p style="opacity: 0.8;" id="payEmail">Connexion...</p>
+                        <div class="pay-balance" id="payBalance">0.00 €</div>
+                        <p style="text-align: center; opacity: 0.7; margin-bottom: 20px;">Solde disponible</p>
+                        <div class="pay-card">
+                            <h3>📥 Recevoir de l'argent</h3>
+                            <p style="font-size: 14px; opacity: 0.8;">Ton lien Prince Pay:</p>
+                            <input type="text" class="input" id="payLink" value="princepay.me/loading" readonly>
+                            <button class="btn btn-success" onclick="copierLien()">Copier mon lien</button>
+                        </div>
+                        <div class="pay-card">
+                            <h3>📤 Retirer vers Mobile Money</h3>
+                            <input type="text" class="input" placeholder="Numéro Mobile Money" id="mobileNum" value="+243...">
+                            <input type="number" class="input" placeholder="Montant à retirer" id="montantRetrait">
+                            <button class="btn" onclick="retirerArgent()">Retirer sur Mobile Money</button>
+                        </div>
+                        <div class="pay-card">
+                            <h3>📊 Flux d'argent</h3>
+                            <p style="font-size: 13px; opacity: 0.9; line-height: 1.6;">
+                                ✅ <strong>Google AdSense</strong> → Prince Pay → Mobile Money<br>
+                                ✅ <strong>Abonnés 2€/sem</strong> → Prince Pay → Mobile Money<br>
+                                ✅ <strong>Autres créateurs</strong> → Tu prends 2% commission
+                            </p>
+                        </div>
+                        <div class="pay-card">
+                            <h3>📋 Transactions récentes</h3>
+                            <div id="transactionsList"></div>
+                        </div>
+                    </div>
+                    <div id="tab-partenaire" style="display:none;">
+                        <h2>🚀 Devenir Partenaire Prince Pay</h2>
+                        <div class="pay-card">
+                            <h3>💎 Double tes revenus AdSense</h3>
+                            <p style="font-size: 14px; opacity: 0.9; line-height: 1.6;">
+                                1. <strong>Tu utilises Prince Pay</strong> pour recevoir Google AdSense<br>
+                                2. <strong>D’autres créateurs</strong> utilisent aussi Prince Pay<br>
+                                3. <strong>Tu gagnes 2% de commission</strong> sur chaque paiement qu’ils reçoivent<br>
+                                4. <strong>Plus de trafic = CPM Google plus élevé</strong> pour toi
+                            </p>
+                        </div>
+                        <div class="pay-card">
+                            <h3>📈 Tes gains potentiels</h3>
+                            <p>10 créateurs partenaires = <strong>+200€/mois</strong> de commissions</p>
+                            <p>100 créateurs partenaires = <strong>+2,000€/mois</strong> de commissions</p>
+                            <p style="margin-top: 10px; font-size: 13px; opacity: 0.8;">+ Ton AdSense augmente car Google voit plus de trafic</p>
+                        </div>
+                        <button class="btn btn-gold" onclick="activerPartenaire()">Activer le Programme Partenaire</button>
+                        <div id="partnerCode" style="margin-top:15px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="page-settings" class="page">
+                <div class="box">
+                    <h2>⚙️ Paramètres Admin</h2>
+                    <button class="btn" onclick="ouvrirPage('users')">1. Suivre les abonnés/utilisateurs</button>
+                    <button class="btn" onclick="ouvrirPage('gains')">2. Suivre mes gains</button>
+                    <button class="btn" onclick="changerCode()">3. Changer le code secret</button>
+                    <button class="btn" onclick="ouvrirPage('publier')">4. Publier mes BD/Vidéos</button>
+                    <button class="btn btn-gold" onclick="ouvrirPage('multicode')">🔐 5. MULTICODE - Coffre Secret</button>
+                </div>
+            </div>
+            <div id="page-users" class="page"><div class="box"><h2>👥 Suivre Abonnés/Utilisateurs</h2><p id="userCount">Chargement...</p><div id="userList"></div><button class="btn btn-danger" onclick="bloquerSite()" style="margin-top:15px;">Bloquer le site</button></div></div>
+            <div id="page-gains" class="page"><div class="box"><h2>💰 Suivre mes gains</h2><p style="font-size:24px; margin:15px 0;" id="gainTotal">0.00 €</p><p id="gainToday">Aujourd'hui: 0.00 €</p><p id="gainWeek">Cette semaine: 0.00 €</p><button class="btn" onclick="ouvrirPage('princepay')">Voir Prince Pay</button></div></div>
+            <div id="page-multicode" class="page">
+                <div class="box">
+                    <h2>🔐 MULTICODE - Coffre Secret</h2>
+                    <p style="opacity: 0.8; margin-bottom: 20px;">Tous les codes du monde avec explications de Lia</p>
+                    <div id="codeList"></div>
+                    <p style="font-size:12px; opacity:0.6; margin-top:20px; text-align:center;">🔒 Seul toi avec le code kiki.gemima peut voir cette page</p>
+                </div>
+            </div>
+        </div>
+        <div id="plus-menu">
+            <button onclick="ouvrirPage('video')">🎬 Création de Vidéos</button>
+            <button onclick="ouvrirPage('abo')">💎 S'abonner - 2€/semaine</button>
+            <button onclick="ouvrirPage('publier')">📤 Publier/Télécharger BD</button>
+            <button onclick="ouvrirPage('arts')">🎨 Multiservices - Arts</button>
+            <button onclick="ouvrirPage('dev')">💻 Création Site/App/IA/Jeux</button>
+            <button onclick="ouvrirPage('learn')">📚 Apprentissage Complet</button>
+            <button onclick="ouvrirPage('scan')">📸 Scannage BD</button>
+            <button onclick="ouvrirPage('princepay')">💰 Prince Pay - Ton Site Paiement</button>
+            <button onclick="verifierCode()">⚙️ Paramètres [Protégé]</button>
+        </div>
+        <div id="modal-code"><div class="modal-content"><h3>🔒 Code Secret Requis</h3><input type="password" class="input" id="codeInput" placeholder="Entre le code"><button class="btn" onclick="validerCode()">Valider</button><button class="btn" onclick="fermerModal()" style="background:#666;">Annuler</button></div>
+        <div class="nav-bar">
+            <button class="nav-btn active" onclick="changerPage('chat', this)"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Chat</button>
+            <button class="nav-btn" onclick="changerPage('message', this)"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Message</button>
+            <button class="nav-btn" onclick="changerPage('nav', this)"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7z"/></svg>Navigation</button>
+            <button class="nav-btn" onclick="changerPage('bd', this)"><svg viewBox="0 0 24 24"><path d=
